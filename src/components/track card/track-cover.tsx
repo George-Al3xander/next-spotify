@@ -4,13 +4,15 @@ import { IoMdMusicalNote } from "react-icons/io";
 
 import Image from "next/image";
 
+import SpotifyImage from "@/components/spotify-image";
+
 function TrackCover({
-    imageSrc,
+    images,
     title,
     isPlaying,
     playTrack,
 }: {
-    imageSrc?: string;
+    images: SpotifyApi.ImageObject[];
     title: string;
     isPlaying: boolean;
     playTrack: () => void;
@@ -25,17 +27,22 @@ function TrackCover({
             onClick={playTrack}
             className="relative max-h-14 max-w-14 overflow-hidden rounded-lg"
         >
-            {imageSrc ? (
-                <Image
-                    className="h-full w-full object-cover transition-all group-focus-within/track-card:opacity-60 group-hover/track-card:opacity-60"
-                    width={100}
-                    height={100}
-                    src={imageSrc}
-                    alt={`${title} cover`}
-                />
-            ) : (
-                <IoMdMusicalNote />
-            )}
+            <SpotifyImage
+                type={"music"}
+                images={images}
+                imageProps={{
+                    className:
+                        "h-full w-full object-cover transition-all group-focus-within/track-card:opacity-60 group-hover/track-card:opacity-60",
+                    width: 100,
+                    height: 100,
+                    alt: `${title} cover`,
+                }}
+                iconProps={{
+                    size: 20,
+                    className:
+                        "text-spotify group-focus-within/track-card:opacity-40 group-hover/track-card:opacity-40",
+                }}
+            />
 
             <span
                 className={

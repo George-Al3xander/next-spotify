@@ -28,16 +28,6 @@ function TrackCard({
     const { togglePlay, isCurrent, isCurrentlyPlaying } = usePlay(uri, id);
     const title = `${name} by ${artists.map(({ name }) => name).join(", ")}`;
 
-    let url: string | undefined;
-    if (album.images !== undefined && "images" in album) {
-        if (Array.isArray(album.images)) {
-            url = album.images[0].url;
-        }
-        if (typeof album.images === "string") {
-            url = album.images;
-        }
-    }
-
     return (
         <li
             className="group/track-card flex items-center gap-4 rounded-lg p-2 text-sm transition-all hover:bg-secondary"
@@ -45,7 +35,7 @@ function TrackCard({
         >
             <TrackCover
                 playTrack={togglePlay}
-                imageSrc={url}
+                images={album.images}
                 title={title}
                 isPlaying={isCurrentlyPlaying}
             />

@@ -1,21 +1,15 @@
 "use client";
 
 import React from "react";
-import { RiPlayListLine } from "react-icons/ri";
 import { usePalette } from "react-palette";
 
-import Image from "next/image";
 import Link from "next/link";
 
+import SpotifyImage from "@/components/spotify-image";
 import { cn } from "@/lib/utils";
 
-function CategoryPreviewCard({
-    name,
-    id,
-    icons,
-    href,
-}: SpotifyApi.CategoryObject) {
-    let url: string = "";
+function CategoryPreviewCard({ name, id, icons }: SpotifyApi.CategoryObject) {
+    let url = "";
     if (icons.length > 0) {
         url = icons[0].url;
     }
@@ -41,17 +35,19 @@ function CategoryPreviewCard({
                 <p className="text-lg font-bold"> {name}</p>
                 {icons.length > 0 && (
                     <span className="absolute -bottom-2 right-[-20px] h-[90px] w-[90px] rotate-45 overflow-hidden rounded-lg">
-                        {url ? (
-                            <Image
-                                className="h-full w-full object-cover"
-                                src={url}
-                                alt={`Cover for ${name}`}
-                                width={120}
-                                height={120}
-                            />
-                        ) : (
-                            <RiPlayListLine size={80} />
-                        )}
+                        <SpotifyImage
+                            type={"category"}
+                            images={icons}
+                            imageProps={{
+                                className: "h-full w-full object-cover",
+                                width: 120,
+                                height: 120,
+                                alt: `Cover for ${name}`,
+                            }}
+                            iconProps={{
+                                size: 80,
+                            }}
+                        />
                     </span>
                 )}
             </li>

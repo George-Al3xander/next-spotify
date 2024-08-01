@@ -9,6 +9,7 @@ import usePlay from "@/hooks/use-play";
 import Image, { StaticImageData } from "next/image";
 import Link from "next/link";
 
+import SpotifyImage from "@/components/spotify-image";
 import { cn } from "@/lib/utils";
 
 import ArtistObjectFull = SpotifyApi.ArtistObjectFull;
@@ -30,19 +31,6 @@ function VerticalPreviewCard({
     | AlbumObjectFull
     | PlaylistObjectSimplified
 ) & { cardVariant?: "responsive" | "vertical" | "horizontal" }) {
-    let url: string | StaticImageData | undefined = undefined;
-
-    if (images) {
-        if (images.length > 0) {
-            url = images[0].url;
-        }
-    }
-    if ("image" in props) {
-        if (typeof props.image === "string") {
-            url = props.image;
-        }
-    }
-
     let authors: string | undefined = undefined;
     const { togglePlay, isPlayingOrigin } = usePlay(uri, id);
     const Icon = isPlayingOrigin ? FaPause : FaPlay;
@@ -82,19 +70,21 @@ function VerticalPreviewCard({
                         },
                     )}
                 >
-                    {url ? (
-                        <Image
-                            className="h-full w-full object-cover"
-                            width={200}
-                            height={200}
-                            src={url}
-                            alt={`${name}'s cover`}
-                        />
-                    ) : type === "artist" ? (
-                        <GoPersonFill className="mx-auto my-3 h-10 w-10 sm:my-10 sm:h-20 sm:w-20" />
-                    ) : (
-                        <IoIosMusicalNotes className="mx-auto my-3 h-10 w-10 sm:my-10 sm:h-20 sm:w-20" />
-                    )}
+                    <SpotifyImage
+                        type={type === "artist" ? "person" : "music"}
+                        images={images}
+                        imageProps={{
+                            className: "h-full w-full object-cover",
+                            width: 200,
+                            height: 200,
+
+                            alt: `${name}'s cover`,
+                        }}
+                        iconProps={{
+                            className:
+                                "mx-auto my-3 h-10 w-10 sm:my-10 sm:h-20 sm:w-20",
+                        }}
+                    />
                 </span>
                 <p className="w-full">
                     <span className="ellipsis block w-full">

@@ -1,13 +1,9 @@
-"use client";
-
 import React from "react";
+import { FaExternalLinkAlt } from "react-icons/fa";
 
-import { useMediaQuery } from "@/hooks/use-media-query";
-import { ExternalLink } from "lucide-react";
-import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 
+import LogoutBtn from "@/components/logout-btn";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -16,74 +12,48 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import UserAvatar from "@/components/user/user-avatar";
+import { menuOptions } from "@/constants/data";
 
-const menuOptions: Record<string, { href?: string; isExternal?: boolean }> = {
-    account: {
-        isExternal: true,
-    },
-    support: {
-        href: "https://support.spotify.com/ua-en/",
-        isExternal: true,
-    },
-    download: {
-        href: "https://www.spotify.com/de-en/download/other/",
-        isExternal: true,
-    },
-};
+function UserDropdownMenu({
+    image,
+    name,
+}: {
+    image?: string | null;
+    name?: string | null;
+}) {
+    return (
+        <DropdownMenu modal={false}>
+            <DropdownMenuTrigger>
+                <UserAvatar src={image} name={name || "u"} />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+                {Object.keys(menuOptions).map((key) => {
+                    const { href, isExternal = false, Icon } = menuOptions[key];
 
-function UserDropdownMenu() {
-    const { data: session, status } = useSession();
-    const isDesktop = useMediaQuery("(min-width: 640px)");
-    if (status === "loading")
-        return (
-            <span className="h-8 w-8 animate-pulse rounded-full bg-primary" />
-        );
-    if (!session) redirect("/api/auth/signin");
-
-    const { user } = session;
-    if (!user) throw new Error("no user provided");
-
-    const { name, image } = user;
-    // TODO: provide user's profile url
-    // menuOptions.account.href = session.token.profileUrl;
-
-    if (isDesktop)
-        return (
-            <DropdownMenu modal={false}>
-                <DropdownMenuTrigger>
-                    <UserAvatar src={image} name={name || "u"} />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                    {Object.keys(menuOptions).map((key) => {
-                        const { href, isExternal = false } = menuOptions[key];
-
-                        return (
-                            <DropdownMenuItem
-                                disabled={!href}
-                                className="capitalize"
-                                key={key}
-                                asChild
+                    return (
+                        <DropdownMenuItem
+                            disabled={!href}
+                            className="capitalize"
+                            key={key}
+                            asChild
+                        >
+                            <Link
+                                className="flex items-center justify-between gap-2"
+                                href={href || ""}
+                                target={"_blank"}
                             >
-                                <Link
-                                    className="flex items-center justify-between gap-2"
-                                    href={href || ""}
-                                    target={"_blank"}
-                                >
-                                    {key}
-                                    {isExternal && (
-                                        <ExternalLink className="h-4 w-4" />
-                                    )}
-                                </Link>
-                            </DropdownMenuItem>
-                        );
-                    })}
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => signOut()}>
-                        Log Out
-                    </DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
-        );
+                                <Icon size={18} />
+                                {key}
+                                {isExternal && <FaExternalLinkAlt size={12} />}
+                            </Link>
+                        </DropdownMenuItem>
+                    );
+                })}
+                <DropdownMenuSeparator />
+                <LogoutBtn tag={DropdownMenuItem} />
+            </DropdownMenuContent>
+        </DropdownMenu>
+    );
 }
 
 export default UserDropdownMenu;

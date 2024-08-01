@@ -1,6 +1,6 @@
 "use client";
 
-import React, { ForwardRefExoticComponent, RefAttributes } from "react";
+import React from "react";
 
 import { ChevronLeft, ChevronRight, LucideIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -17,19 +17,12 @@ const buttons: {
 
 function BackForwardButtons() {
     const router = useRouter();
-    //const referrer = document.referrer;
 
     return (
         <ul className="hidden gap-2 sm:flex">
             {buttons.map(({ path, Icon }) => (
                 <li key={path + "-li"}>
                     <Button
-                        // disabled={Boolean(
-                        //     process.env.NEXT_PUBLIC_NEXTAUTH_URL &&
-                        //         !referrer.includes(
-                        //             process.env.NEXT_PUBLIC_NEXTAUTH_URL,
-                        //         ),
-                        // )}
                         className="h-8 w-8 rounded-full bg-black bg-opacity-70 text-white hover:cursor-pointer disabled:cursor-not-allowed"
                         size={"icon"}
                         variant="secondary"

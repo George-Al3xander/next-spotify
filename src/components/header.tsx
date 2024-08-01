@@ -1,13 +1,9 @@
 import React from "react";
 
-import { useRouter } from "next/router";
-
 import BackForwardButtons from "@/components/back-forward-buttons";
 import SearchBar from "@/components/search/search-bar";
 import SearchTabButtons from "@/components/search/search-tab-buttons";
-import UserDropdownMenu from "@/components/user/user menu/user-dropdown-menu";
 import UserMenu from "@/components/user/user menu/user-menu";
-import { TSearchTabVariant } from "@/types/types";
 
 function Header() {
     return (

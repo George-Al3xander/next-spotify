@@ -2,15 +2,13 @@
 
 import React from "react";
 import { FaPause, FaPlay } from "react-icons/fa";
+import { GoPersonFill } from "react-icons/go";
+import { IoIosMusicalNotes } from "react-icons/io";
 
 import usePlay from "@/hooks/use-play";
-import { Pause, Play } from "lucide-react";
 import Image, { StaticImageData } from "next/image";
 
 import { cn } from "@/lib/utils";
-
-import PersonDefaultAvatar from "../../public/assets/img/person_default_avatar.svg";
-import PlaylistDefaultCover from "../../public/assets/img/playlist_default_cover.png";
 
 import ArtistObjectFull = SpotifyApi.ArtistObjectFull;
 import PlaylistObjectFull = SpotifyApi.PlaylistObjectFull;
@@ -31,19 +29,18 @@ function VerticalPreviewCard({
     | AlbumObjectFull
     | PlaylistObjectSimplified
 ) & { cardVariant?: "responsive" | "vertical" | "horizontal" }) {
-    let url: string | StaticImageData =
-        type === "artist" ? PersonDefaultAvatar : PlaylistDefaultCover;
+    let url: string | StaticImageData | undefined = undefined;
 
-    if (images) {
-        if (images.length > 0) {
-            url = images[0].url;
-        }
-    }
-    if ("image" in props) {
-        if (typeof props.image === "string") {
-            url = props.image;
-        }
-    }
+    // if (images) {
+    //     if (images.length > 0) {
+    //         url = images[0].url;
+    //     }
+    // }
+    // if ("image" in props) {
+    //     if (typeof props.image === "string") {
+    //         url = props.image;
+    //     }
+    // }
 
     let authors: string | undefined = undefined;
     const { togglePlay, isPlayingOrigin } = usePlay(uri, id);
@@ -83,13 +80,19 @@ function VerticalPreviewCard({
                     },
                 )}
             >
-                <Image
-                    className="h-full w-full object-cover"
-                    width={200}
-                    height={200}
-                    src={url}
-                    alt={`${name}'s cover`}
-                />
+                {url ? (
+                    <Image
+                        className="h-full w-full object-cover"
+                        width={200}
+                        height={200}
+                        src={url}
+                        alt={`${name}'s cover`}
+                    />
+                ) : type === "artist" ? (
+                    <GoPersonFill className="mx-auto my-3 h-10 w-10 sm:my-10 sm:h-20 sm:w-20" />
+                ) : (
+                    <IoIosMusicalNotes className="mx-auto my-3 h-10 w-10 sm:my-10 sm:h-20 sm:w-20" />
+                )}
             </span>
             <p className="w-full">
                 <span className="ellipsis block w-full">

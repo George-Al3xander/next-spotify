@@ -7,6 +7,7 @@ import { IoIosMusicalNotes } from "react-icons/io";
 
 import usePlay from "@/hooks/use-play";
 import Image, { StaticImageData } from "next/image";
+import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 
@@ -31,16 +32,16 @@ function VerticalPreviewCard({
 ) & { cardVariant?: "responsive" | "vertical" | "horizontal" }) {
     let url: string | StaticImageData | undefined = undefined;
 
-    // if (images) {
-    //     if (images.length > 0) {
-    //         url = images[0].url;
-    //     }
-    // }
-    // if ("image" in props) {
-    //     if (typeof props.image === "string") {
-    //         url = props.image;
-    //     }
-    // }
+    if (images) {
+        if (images.length > 0) {
+            url = images[0].url;
+        }
+    }
+    if ("image" in props) {
+        if (typeof props.image === "string") {
+            url = props.image;
+        }
+    }
 
     let authors: string | undefined = undefined;
     const { togglePlay, isPlayingOrigin } = usePlay(uri, id);
@@ -59,69 +60,74 @@ function VerticalPreviewCard({
     }
 
     return (
-        <div
-            onDoubleClick={() => togglePlay(false)}
-            title={name}
-            className={cn(
-                "group/vertical-card relative flex w-full basis-full items-center gap-4 rounded-lg p-2 transition-all hover:bg-background",
-                {
-                    "sm:mx-auto sm:w-[12.5rem] sm:flex-col sm:items-start sm:gap-2":
-                        cardVariant === "responsive",
-                    "mx-auto w-[12.5rem] flex-col items-start gap-2":
-                        cardVariant === "vertical",
-                },
-            )}
-        >
-            <span
+        <Link href={`/${type}s/${id}`}>
+            <div
+                onDoubleClick={() => togglePlay(false)}
+                title={name}
                 className={cn(
-                    "aspect-square min-h-[4rem] min-w-[4rem] overflow-hidden rounded-lg bg-background sm:mx-auto sm:h-[11rem] sm:w-[11rem]",
+                    "group/vertical-card relative flex w-full basis-full items-center gap-4 rounded-lg p-2 transition-all hover:bg-background",
                     {
-                        "rounded-full": type === "artist",
-                    },
-                )}
-            >
-                {url ? (
-                    <Image
-                        className="h-full w-full object-cover"
-                        width={200}
-                        height={200}
-                        src={url}
-                        alt={`${name}'s cover`}
-                    />
-                ) : type === "artist" ? (
-                    <GoPersonFill className="mx-auto my-3 h-10 w-10 sm:my-10 sm:h-20 sm:w-20" />
-                ) : (
-                    <IoIosMusicalNotes className="mx-auto my-3 h-10 w-10 sm:my-10 sm:h-20 sm:w-20" />
-                )}
-            </span>
-            <p className="w-full">
-                <span className="ellipsis block w-full">
-                    <span className="font-bold text-white">{name}</span>
-                </span>
-                <span className="ellipsis block w-full">
-                    <span className="capitalize opacity-60">{type}</span>
-                </span>
-            </p>
-
-            <button
-                onClick={() => togglePlay()}
-                className={cn(
-                    "bottom-[30%] right-[5%] rounded-full bg-spotify p-4 text-black transition-all hover:scale-110 group-hover/vertical-card:pointer-events-auto group-hover/vertical-card:translate-y-0 group-hover/vertical-card:opacity-100",
-                    {
-                        "!pointer-events-auto !translate-y-0 !opacity-100":
-                            isPlayingOrigin,
-                        "sm:pointer-events-none sm:absolute sm:translate-y-4 sm:opacity-0":
+                        "sm:mx-auto sm:w-[12.5rem] sm:flex-col sm:items-start sm:gap-2":
                             cardVariant === "responsive",
-                        "pointer-events-none absolute translate-y-4 opacity-0":
+                        "mx-auto w-[12.5rem] flex-col items-start gap-2":
                             cardVariant === "vertical",
                     },
                 )}
-                title={title}
             >
-                <Icon />
-                <span className="sr-only">{title}</span>
-            </button>
-        </div>
+                <span
+                    className={cn(
+                        "aspect-square min-h-[4rem] min-w-[4rem] overflow-hidden rounded-lg bg-background sm:mx-auto sm:h-[11rem] sm:w-[11rem]",
+                        {
+                            "rounded-full": type === "artist",
+                        },
+                    )}
+                >
+                    {url ? (
+                        <Image
+                            className="h-full w-full object-cover"
+                            width={200}
+                            height={200}
+                            src={url}
+                            alt={`${name}'s cover`}
+                        />
+                    ) : type === "artist" ? (
+                        <GoPersonFill className="mx-auto my-3 h-10 w-10 sm:my-10 sm:h-20 sm:w-20" />
+                    ) : (
+                        <IoIosMusicalNotes className="mx-auto my-3 h-10 w-10 sm:my-10 sm:h-20 sm:w-20" />
+                    )}
+                </span>
+                <p className="w-full">
+                    <span className="ellipsis block w-full">
+                        <span className="font-bold text-white">{name}</span>
+                    </span>
+                    <span className="ellipsis block w-full">
+                        <span className="capitalize opacity-60">{type}</span>
+                    </span>
+                </p>
+
+                <button
+                    onClick={async (e) => {
+                        e.preventDefault();
+                        await togglePlay();
+                    }}
+                    className={cn(
+                        "bottom-[30%] right-[5%] rounded-full bg-spotify p-4 text-black transition-all hover:scale-110 group-hover/vertical-card:pointer-events-auto group-hover/vertical-card:translate-y-0 group-hover/vertical-card:opacity-100",
+                        {
+                            "!pointer-events-auto !translate-y-0 !opacity-100":
+                                isPlayingOrigin,
+                            "sm:pointer-events-none sm:absolute sm:translate-y-4 sm:opacity-0":
+                                cardVariant === "responsive",
+                            "pointer-events-none absolute translate-y-4 opacity-0":
+                                cardVariant === "vertical",
+                        },
+                    )}
+                    title={title}
+                >
+                    <Icon />
+                    <span className="sr-only">{title}</span>
+                </button>
+            </div>
+        </Link>
     );
 }
 

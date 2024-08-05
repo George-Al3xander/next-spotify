@@ -1,31 +1,40 @@
 "use client";
 
-import React from "react";
 import { HiDotsHorizontal } from "react-icons/hi";
 import InfiniteScroll from "react-infinite-scroll-component";
 
-import useAdvancedParams from "@/hooks/use-advanced-params";
 import useInfiniteScroll from "@/hooks/use-infinite-scroll";
 import { nanoid } from "nanoid";
 
 import SpotifySuspenseSkeleton from "@/components/skeletons/spotify-suspense-skeleton";
 import TrackCard from "@/components/track card/track-card";
 import VerticalPreviewCard from "@/components/vertical-preview-card";
-import { cn, searchItemsDynamically } from "@/lib/utils";
-import { TSearchTabVariant } from "@/types/types";
+import { cn } from "@/lib/utils";
+import { PagingObject } from "@/types/types";
+import { ReactNode } from "react";
 
-function ScrollList() {
-    const { searchQuery: query, searchTab } = useAdvancedParams();
-
-    const getItems = async (options: { offset: number; limit: number }) => {
-        const res = await searchItemsDynamically({
-            query,
-            itemVariant: currentTab,
-            options,
-        });
-        return res.body[`${currentTab as Exclude<TSearchTabVariant, "all">}`]!;
-    };
-
+function ScrollList({
+    getItems,
+    type,
+    noResultsMessage,
+}: {
+    getItems: ({
+        offset,
+        limit,
+    }: {
+        offset: number;
+        limit: number;
+    }) => Promise<
+        PagingObject<
+            | SpotifyApi.PlaylistObjectSimplified
+            | SpotifyApi.ArtistObjectFull
+            | SpotifyApi.AlbumObjectSimplified
+            | SpotifyApi.TrackObjectFull
+        >
+    >;
+    type: "playlists" | "artists" | "albums" | "tracks";
+    noResultsMessage?: ReactNode;
+}) {
     const { items, currentTab, isLoading, ...opts } = useInfiniteScroll<
         | SpotifyApi.PlaylistObjectSimplified
         | SpotifyApi.ArtistObjectFull
@@ -43,19 +52,8 @@ function ScrollList() {
             />
         );
 
-    if (items.length === 0 || !items)
-        return (
-            <section className="my-10 text-center">
-                <h2 className="mb-4 text-2xl font-bold text-white">
-                    No results found for &quot;
-                    {query}&quot;
-                </h2>
-                <p>
-                    Please make sure your words are spelled correctly or use
-                    less or different keywords.
-                </p>
-            </section>
-        );
+    if ((items.length === 0 || !items) && noResultsMessage)
+        return noResultsMessage;
     return (
         <InfiniteScroll
             {...opts}
@@ -71,16 +69,16 @@ function ScrollList() {
             <ul
                 className={cn({
                     "grid overflow-x-hidden sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5":
-                        searchTab != "tracks",
+                        type != "tracks",
                 })}
             >
                 {items.map((item) => {
                     const key = `${nanoid()}-${item.id}`;
-
-                    if (searchTab === "tracks" && item.type === "track") {
+                    console.log(item.type);
+                    if (type === "tracks" && item.type === "track") {
                         return <TrackCard key={key} {...item} />;
                     }
-
+                    //@ts-ignore
                     return <VerticalPreviewCard key={key} {...item} />;
                 })}
             </ul>

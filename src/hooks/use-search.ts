@@ -1,6 +1,5 @@
 import { ChangeEvent, useEffect, useState } from "react";
 
-import debounce from "lodash/debounce";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useDebounce } from "use-debounce";
 
@@ -31,8 +30,8 @@ const useSearch = () => {
     const clear = () => {
         const newSearchParams = new URLSearchParams(currSearchParams);
         newSearchParams.delete("searchQuery");
-        setSearchQuery("");
         router.push(`?${newSearchParams.toString()}`);
+        setSearchQuery("");
     };
 
     useEffect(() => {

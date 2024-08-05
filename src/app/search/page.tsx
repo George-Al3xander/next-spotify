@@ -1,13 +1,11 @@
-import React, { Suspense } from "react";
-
 import { nanoid } from "nanoid";
 
 import BrowseTab from "@/components/browse-tab";
-import ScrollList from "@/components/search/scroll-list";
 import SearchItems from "@/components/search/search-items";
-import SpotifySuspenseSkeleton from "@/components/skeletons/spotify-suspense-skeleton";
-import { parseSearchTab } from "@/lib/utils";
+import SearchScrollList from "@/components/search/search-scroll-list";
+import SpotifySuspenseSkeleton from "@/components/utils/spotify-lazy-loader";
 import { searchTabVariants } from "@/constants/data";
+import { parseSearchTab } from "@/lib/utils";
 import { TSearchTabVariant } from "@/types/types";
 
 function SearchPage({
@@ -21,11 +19,14 @@ function SearchPage({
     const { searchQuery } = searchParams;
     const searchTab = parseSearchTab(searchParams.searchTab);
     if (!searchQuery) return <BrowseTab />;
-
+    //TODO: make a way to render SearchItems component dynamically based on the observer
     return (
         <main>
             {searchTab !== "all" ? (
-                <ScrollList />
+                <SearchScrollList
+                    searchTab={searchTab}
+                    searchQuery={searchQuery}
+                />
             ) : (
                 searchTabVariants.slice(1).map((variant) => (
                     <SpotifySuspenseSkeleton

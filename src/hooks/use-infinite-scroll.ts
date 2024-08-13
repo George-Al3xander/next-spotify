@@ -4,35 +4,41 @@ import useAdvancedParams from "@/hooks/use-advanced-params";
 import useProvideToken from "@/hooks/use-provide-token";
 
 import { generateSearchOptions } from "@/lib/utils";
-import { PagingObject } from "@/types/types";
+import { InfiniteScrollProps } from "@/types/types";
 
-const useInfiniteScroll = <T>(
-    getItems: ({
-        offset,
-        limit,
-    }: {
-        offset: number;
-        limit: number;
-    }) => Promise<PagingObject<T>>,
-) => {
+const useInfiniteScroll = <T>({
+    getItems,
+    initialItems,
+    initialParams,
+}: InfiniteScrollProps<T>) => {
     useProvideToken();
     const { searchQuery: query, searchTab: currentTab } = useAdvancedParams();
-    const [offset, setOffset] = useState(0);
-    const [limit, setLimit] = useState(20);
+    const [offset, setOffset] = useState(
+        initialParams ? initialParams.offset + initialParams.limit : 0,
+    );
+    const [limit, setLimit] = useState(
+        initialParams ? initialParams.limit : 20,
+    );
     const [hasMore, setHasMore] = useState<boolean>(true);
-    const [items, setItems] = useState<T[]>([]);
+    const [items, setItems] = useState<T[]>(initialItems || []);
     const [isLoading, setIsLoading] = useState(false);
 
     const next = async (manualOptions?: { offset: number; limit: number }) => {
         const options = manualOptions || { offset, limit };
 
         const newItems = await getItems(options);
-        const newOptions = generateSearchOptions(newItems.next);
+        if ("next" in newItems) {
+            const newBool = Boolean(newItems.next);
 
-        setHasMore(Boolean("next" in newItems));
+            setHasMore(newBool);
+            if (newBool) {
+                const newOptions = generateSearchOptions(newItems.next);
 
-        setOffset(newOptions["offset"]);
-        setLimit(newOptions["limit"]);
+                setOffset(newOptions["offset"]);
+                setLimit(newOptions["limit"]);
+            }
+        }
+
         if (manualOptions) {
             setItems(newItems.items);
         } else {
@@ -46,7 +52,7 @@ const useInfiniteScroll = <T>(
     };
 
     useEffect(() => {
-        if (!isLoading) {
+        if (!isLoading && !initialItems) {
             initialFetch();
         }
     }, [currentTab, query]);

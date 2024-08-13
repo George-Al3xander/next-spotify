@@ -10,37 +10,33 @@ import SpotifySuspenseSkeleton from "@/components/skeletons/spotify-suspense-ske
 import TrackCard from "@/components/track card/track-card";
 import VerticalPreviewCard from "@/components/vertical-preview-card";
 import { cn } from "@/lib/utils";
-import { PagingObject } from "@/types/types";
+import { InfiniteScrollProps } from "@/types/types";
 import { ReactNode } from "react";
+
+type TAll =
+    | SpotifyApi.PlaylistObjectSimplified
+    | SpotifyApi.ArtistObjectFull
+    | SpotifyApi.AlbumObjectSimplified
+    | SpotifyApi.TrackObjectFull
+    | SpotifyApi.PlaylistTrackObject;
 
 function ScrollList({
     getItems,
     type,
     noResultsMessage,
-}: {
-    getItems: ({
-        offset,
-        limit,
-    }: {
-        offset: number;
-        limit: number;
-    }) => Promise<
-        PagingObject<
-            | SpotifyApi.PlaylistObjectSimplified
-            | SpotifyApi.ArtistObjectFull
-            | SpotifyApi.AlbumObjectSimplified
-            | SpotifyApi.TrackObjectFull
-        >
-    >;
+    initialItems,
+    initialParams,
+    itemsWithIndex,
+}: InfiniteScrollProps<TAll> & {
     type: "playlists" | "artists" | "albums" | "tracks";
     noResultsMessage?: ReactNode;
+    itemsWithIndex?: boolean;
 }) {
-    const { items, currentTab, isLoading, ...opts } = useInfiniteScroll<
-        | SpotifyApi.PlaylistObjectSimplified
-        | SpotifyApi.ArtistObjectFull
-        | SpotifyApi.AlbumObjectSimplified
-        | SpotifyApi.TrackObjectFull
-    >(getItems);
+    const { items, currentTab, isLoading, ...opts } = useInfiniteScroll<TAll>({
+        getItems,
+        initialItems,
+        initialParams,
+    });
 
     if (isLoading)
         return (
@@ -72,11 +68,29 @@ function ScrollList({
                         type != "tracks",
                 })}
             >
-                {items.map((item) => {
-                    const key = `${nanoid()}-${item.id}`;
-                    console.log(item.type);
-                    if (type === "tracks" && item.type === "track") {
-                        return <TrackCard key={key} {...item} />;
+                {items.map((item, index) => {
+                    if (!item) return null;
+
+                    const key = `${nanoid()}-${"id" in item ? item.id : item.track?.id}`;
+                    if (type === "tracks") {
+                        const propIndex = itemsWithIndex
+                            ? index + 1
+                            : undefined;
+                        if ("track" in item) {
+                            const playlistTrack =
+                                item.track as SpotifyApi.TrackObjectFull;
+                            return (
+                                <TrackCard
+                                    key={key}
+                                    index={propIndex}
+                                    {...playlistTrack}
+                                />
+                            );
+                        }
+                        return (
+                            //@ts-ignore
+                            <TrackCard index={propIndex} key={key} {...item} />
+                        );
                     }
                     //@ts-ignore
                     return <VerticalPreviewCard key={key} {...item} />;

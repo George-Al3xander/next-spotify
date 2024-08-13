@@ -5,25 +5,13 @@ export type TSearchTabVariant =
     | "albums"
     | "tracks";
 
-export interface Response<T> {
+export type Response<T> = {
     body: T;
     headers: Record<string, string>;
     statusCode: number;
-}
+};
 
-interface LimitOptions {
-    limit?: number | undefined;
-}
-
-interface PaginationOptions extends LimitOptions {
-    offset?: number | undefined;
-}
-
-export interface SearchOptions extends PaginationOptions {
-    include_external?: "audio" | undefined;
-}
-
-export interface PagingObject<T> {
+export type PagingObject<T> = {
     href: string;
     items: T[];
     limit: number;
@@ -31,4 +19,35 @@ export interface PagingObject<T> {
     offset: number;
     previous: string | null;
     total: number;
-}
+};
+
+export type PaletteColors = {
+    vibrant?: string;
+    muted?: string;
+    darkVibrant?: string;
+    darkMuted?: string;
+    lightVibrant?: string;
+    lightMuted?: string;
+};
+
+export type TrackPlayBtnBaseProps = {
+    title: string;
+    isCurrentlyPlaying: boolean;
+    togglePlay: () => void;
+};
+
+export type PaginationParams = {
+    offset: number;
+    limit: number;
+};
+
+export type GetPaginationItemsFn<T> = ({
+    offset,
+    limit,
+}: PaginationParams) => Promise<PagingObject<T>>;
+
+export type InfiniteScrollProps<T> = {
+    getItems: GetPaginationItemsFn<T>;
+    initialItems?: T[];
+    initialParams?: PaginationParams;
+};

@@ -1,19 +1,16 @@
 "use client";
 
-import React, { Fragment } from "react";
-import { MdExplicit } from "react-icons/md";
-
 import usePlay from "@/hooks/use-play";
 import useProvideToken from "@/hooks/use-provide-token";
 import Link from "next/link";
+import { Fragment } from "react";
+import { MdExplicit } from "react-icons/md";
 
-import SpotifyElementSkeleton from "@/components/skeletons/spotify-element-skeleton";
 import TrackCover from "@/components/track card/track-cover";
 import TrackDdMenu from "@/components/track card/track-dd-menu";
-import { cn, displayTrackLength } from "@/lib/utils";
+import TrackIndex from "@/components/track card/track-index";
+import { cn, displayTrackLength, generateItemTitle } from "@/lib/utils";
 
-const textStyles =
-    "w-[10ch] overflow-hidden text-ellipsis text-nowrap md:w-[20ch] lg:w-auto";
 function TrackCard({
     name,
     uri,
@@ -22,22 +19,30 @@ function TrackCard({
     artists,
     duration_ms,
     id,
+    index,
     external_urls: { spotify },
-}: SpotifyApi.TrackObjectFull) {
+}: SpotifyApi.TrackObjectFull & { index?: number }) {
     useProvideToken();
-    const { togglePlay, isCurrent, isCurrentlyPlaying } = usePlay(uri, id);
-    const title = `${name} by ${artists.map(({ name }) => name).join(", ")}`;
+
+    const playProps = usePlay(uri, id);
+    const { togglePlay, isCurrent, isCurrentlyPlaying } = playProps;
+    const title = generateItemTitle({
+        name,
+        playingStatus: isCurrentlyPlaying,
+        artists,
+    });
 
     return (
         <li
-            className="group/track-card flex items-center gap-4 rounded-lg p-2 text-sm transition-all hover:bg-secondary"
+            className="group/track-card flex items-center gap-4 rounded-lg bg-black bg-opacity-0 p-2 text-sm transition-all focus-within:bg-opacity-40 hover:bg-opacity-40"
             onDoubleClick={() => togglePlay(false)}
         >
+            <TrackIndex index={index} title={title} {...playProps} />
             <TrackCover
-                playTrack={togglePlay}
-                images={album.images}
                 title={title}
-                isPlaying={isCurrentlyPlaying}
+                withIndex={Boolean(index)}
+                images={album.images}
+                {...playProps}
             />
             <div className="w-full">
                 <div className="ellipsis">

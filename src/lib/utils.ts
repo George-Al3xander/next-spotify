@@ -1,14 +1,13 @@
+import { authOptions } from "@/constants/authOptions";
+import { searchTabVariants } from "@/constants/data";
+import spotifyApi from "@/lib/spotify";
+import { Response, TSearchTabVariant } from "@/types/types";
 import axios from "axios";
 import { clsx, type ClassValue } from "clsx";
 import { getServerSession } from "next-auth";
 import { JWT } from "next-auth/jwt";
 import { redirect } from "next/navigation";
 import { twMerge } from "tailwind-merge";
-
-import spotifyApi from "@/lib/spotify";
-import { authOptions } from "@/constants/authOptions";
-import { searchTabVariants } from "@/constants/data";
-import { PagingObject, TSearchTabVariant } from "@/types/types";
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
@@ -37,7 +36,7 @@ export const searchItemsDynamically = async ({
     itemVariant: TSearchTabVariant;
     query: string;
     options: { offset: number; limit: number };
-}) => {
+}): Promise<Response<SpotifyApi.SearchResponse>> => {
     const functionPath =
         `search${itemVariant[0].toUpperCase()}${itemVariant.substring(1)}` as "searchTracks";
     return await spotifyApi[functionPath](query, options);
@@ -112,4 +111,32 @@ export const parseSearchTab = (
         return backupValue;
 
     return searchTab;
+};
+
+export const generateItemTitle = ({
+    playingStatus,
+    name,
+    ...props
+}: {
+    name: string;
+    playingStatus: boolean;
+    owner?: SpotifyApi.PlaylistObjectSimplified["owner"];
+    artists?: SpotifyApi.AlbumObjectSimplified["artists"];
+}) => {
+    let authors: string | undefined = undefined;
+
+    let title = `${playingStatus ? "Stop playing" : "Play"} ${name}`;
+
+    if ("artists" in props) {
+        if (props.artists)
+            authors = props.artists.map(({ name }) => name).join(", ");
+    }
+    if ("owner" in props) {
+        if (props.owner) authors = props.owner.display_name;
+    }
+
+    if (authors) {
+        title = `${title} by ${authors}`;
+    }
+    return title;
 };

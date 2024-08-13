@@ -1,21 +1,17 @@
 "use client";
 
-import React from "react";
-import { FaPause, FaPlay } from "react-icons/fa";
-import { GoPersonFill } from "react-icons/go";
-import { IoIosMusicalNotes } from "react-icons/io";
-
 import usePlay from "@/hooks/use-play";
-import Image, { StaticImageData } from "next/image";
 import Link from "next/link";
 
-import SpotifyImage from "@/components/spotify-image";
-import { cn } from "@/lib/utils";
+import PlayPauseIcon from "@/components/play-pause-icon";
+import SpotifyImage from "@/components/utils/spotify-image";
+import { cn, generateItemTitle } from "@/lib/utils";
 
 import ArtistObjectFull = SpotifyApi.ArtistObjectFull;
-import PlaylistObjectFull = SpotifyApi.PlaylistObjectFull;
+
 import AlbumObjectFull = SpotifyApi.AlbumObjectFull;
 import PlaylistObjectSimplified = SpotifyApi.PlaylistObjectSimplified;
+import AlbumObjectSimplified = SpotifyApi.AlbumObjectSimplified;
 
 function VerticalPreviewCard({
     id,
@@ -25,33 +21,21 @@ function VerticalPreviewCard({
     images,
     cardVariant = "responsive",
     ...props
-}: (
-    | ArtistObjectFull
-    | PlaylistObjectFull
-    | AlbumObjectFull
-    | PlaylistObjectSimplified
-) & { cardVariant?: "responsive" | "vertical" | "horizontal" }) {
-    let authors: string | undefined = undefined;
+}: (ArtistObjectFull | AlbumObjectSimplified | PlaylistObjectSimplified) & {
+    cardVariant?: "responsive" | "vertical" | "horizontal";
+}) {
     const { togglePlay, isPlayingOrigin } = usePlay(uri, id);
-    const Icon = isPlayingOrigin ? FaPause : FaPlay;
-    let title = `${isPlayingOrigin ? "Stop playing" : "Play"} ${name}`;
-
-    if (type === "album" && "artists" in props) {
-        authors = props.artists.map(({ name }) => name).join(", ");
-    }
-    if (type === "playlist" && "owner" in props) {
-        authors = props.owner.display_name;
-    }
-
-    if (authors) {
-        title = `${title} by ${authors}`;
-    }
+    const title = generateItemTitle({
+        name,
+        playingStatus: isPlayingOrigin,
+        ...props,
+    });
 
     return (
         <Link href={`/${type}s/${id}`}>
             <div
                 onDoubleClick={() => togglePlay(false)}
-                title={name}
+                title={title}
                 className={cn(
                     "group/vertical-card relative flex w-full basis-full items-center gap-4 rounded-lg p-2 transition-all hover:bg-background",
                     {
@@ -64,7 +48,7 @@ function VerticalPreviewCard({
             >
                 <span
                     className={cn(
-                        "aspect-square min-h-[4rem] min-w-[4rem] overflow-hidden rounded-lg bg-background sm:mx-auto sm:h-[11rem] sm:w-[11rem]",
+                        "aspect-square max-h-[6rem] min-h-[6rem] min-w-[6rem] max-w-[6rem] overflow-hidden rounded-lg bg-background sm:mx-auto sm:max-h-[11rem] sm:min-h-[11rem] sm:min-w-[11rem] sm:max-w-[11rem]",
                         {
                             "rounded-full": type === "artist",
                         },
@@ -113,7 +97,7 @@ function VerticalPreviewCard({
                     )}
                     title={title}
                 >
-                    <Icon />
+                    <PlayPauseIcon playingStatus={isPlayingOrigin} />
                     <span className="sr-only">{title}</span>
                 </button>
             </div>
